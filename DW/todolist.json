@@ -1,0 +1,224 @@
+{
+  "lists": [
+    {
+      "id": "abc123",
+      "name": "AI Coaching Website Tasks",
+      "tasks": [
+        {
+          "id": "t1",
+          "text": "Write PROJECT_SCOPE.md",
+          "completed": true,
+          "level": 0,
+          "tags": ["#documentation"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Already done"
+        },
+        {
+          "id": "t2",
+          "text": "Add README.md",
+          "completed": true,
+          "level": 0,
+          "tags": ["#documentation"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Completed with corrected Utilisation section"
+        },
+        {
+          "id": "t3",
+          "text": "Write USER_FLOWS.md",
+          "completed": false,
+          "level": 0,
+          "tags": ["#documentation"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": "Describe navigation and user journeys"
+        },
+        {
+          "id": "t4",
+          "text": "Write DATA_MODEL.md",
+          "completed": false,
+          "level": 0,
+          "tags": ["#documentation"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": "Define LocalStorage structure"
+        },
+        {
+          "id": "t5",
+          "text": "Create repo structure (index.html, css/, js/, assets/)",
+          "completed": false,
+          "level": 0,
+          "tags": ["#setup"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Initial project skeleton"
+        },
+        {
+          "id": "t6",
+          "text": "Link CSS and JS in index.html",
+          "completed": false,
+          "level": 0,
+          "tags": ["#setup"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": null
+        },
+        {
+          "id": "t7",
+          "text": "Add navigation bar",
+          "completed": false,
+          "level": 0,
+          "tags": ["#setup"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": "Accueil, Coach, Programmes, Journal, Tableau de bord"
+        },
+        {
+          "id": "t8",
+          "text": "Build Accueil/Profil page",
+          "completed": false,
+          "level": 0,
+          "tags": ["#development"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Form + LocalStorage save"
+        },
+        {
+          "id": "t9",
+          "text": "Build Coach Q&A page",
+          "completed": false,
+          "level": 0,
+          "tags": ["#development"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Input + AI response logic"
+        },
+        {
+          "id": "t10",
+          "text": "Build Programmes page",
+          "completed": false,
+          "level": 0,
+          "tags": ["#development"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Exercise library + routine creation"
+        },
+        {
+          "id": "t11",
+          "text": "Build Journal page",
+          "completed": false,
+          "level": 0,
+          "tags": ["#development"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Log sessions + save history"
+        },
+        {
+          "id": "t12",
+          "text": "Build Tableau de bord page",
+          "completed": false,
+          "level": 0,
+          "tags": ["#development"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Charts for progress"
+        },
+        {
+          "id": "t13",
+          "text": "Style with CSS",
+          "completed": false,
+          "level": 0,
+          "tags": ["#design"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": "Colors, layout, responsive design"
+        },
+        {
+          "id": "t14",
+          "text": "Add icons/images/videos",
+          "completed": false,
+          "level": 0,
+          "tags": ["#design"],
+          "priority": "low",
+          "dueDate": null,
+          "notes": "For exercises"
+        },
+        {
+          "id": "t15",
+          "text": "Implement LocalStorage functions",
+          "completed": false,
+          "level": 0,
+          "tags": ["#data"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": "Save/load profile, routines, sessions"
+        },
+        {
+          "id": "t16",
+          "text": "Create charts",
+          "completed": false,
+          "level": 0,
+          "tags": ["#data"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": "Chart.js or vanilla JS canvas"
+        },
+        {
+          "id": "t17",
+          "text": "Testing (profile, Q&A, routines, sessions, dashboard)",
+          "completed": false,
+          "level": 0,
+          "tags": ["#testing"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": null
+        },
+        {
+          "id": "t18",
+          "text": "Final polish",
+          "completed": false,
+          "level": 0,
+          "tags": ["#delivery"],
+          "priority": "medium",
+          "dueDate": null,
+          "notes": "Typos, layout, responsiveness"
+        },
+        {
+          "id": "t19",
+          "text": "Push all files to GitHub",
+          "completed": false,
+          "level": 0,
+          "tags": ["#delivery"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": null
+        },
+        {
+          "id": "t20",
+          "text": "Deploy with GitHub Pages (optional)",
+          "completed": false,
+          "level": 0,
+          "tags": ["#delivery"],
+          "priority": "low",
+          "dueDate": null,
+          "notes": "For online demo"
+        },
+        {
+          "id": "t21",
+          "text": "Present to MR with documentation + demo",
+          "completed": false,
+          "level": 0,
+          "tags": ["#delivery"],
+          "priority": "high",
+          "dueDate": null,
+          "notes": null
+        }
+      ]
+    }
+  ],
+  "activeId": "abc123",
+  "theme": "light",
+  "filter": "all",
+  "search": ""
+}

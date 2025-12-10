@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shared Checklist</title>
+  <style>
+    body {margin:0;font-family:sans-serif;background:#fff;color:#000;transition:background .3s,color .3s}
+    body.dark{background:#1a1a1a;color:#e0e0e0}
+    
+    /* Login Screen */
+    .login-container{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem}
+    .login-box{background:#fff;border:1px solid #000;border-radius:8px;padding:2rem;max-width:400px;width:100%}
+    body.dark .login-box{background:#2a2a2a;border-color:#666}
+    .login-box h2{margin-top:0;text-align:center}
+    .login-box input{width:100%;padding:.75rem;border:1px solid #000;border-radius:4px;margin-bottom:1rem;background:#fff;color:#000;box-sizing:border-box}
+    body.dark .login-box input{border-color:#666;background:#1a1a1a;color:#e0e0e0}
+    .login-box .btn-primary{width:100%;padding:.75rem;border:1px solid #000;border-radius:4px;background:#000;color:#fff;cursor:pointer;font-size:16px;margin-bottom:.5rem}
+    body.dark .login-box .btn-primary{background:#e0e0e0;color:#000}
+    .login-box .btn-secondary{width:100%;padding:.75rem;border:1px solid #000;border-radius:4px;background:#fff;color:#000;cursor:pointer;font-size:16px}
+    body.dark .login-box .btn-secondary{background:#2a2a2a;border-color:#666;color:#e0e0e0}
+    .login-box .error{color:#c00;font-size:14px;margin-bottom:1rem;text-align:center}
+    .login-box .toggle-mode{text-align:center;margin-top:1rem;color:#666;cursor:pointer;font-size:14px}
+    .login-box .toggle-mode:hover{color:#000}
+    body.dark .login-box .toggle-mode:hover{color:#e0e0e0}
+    
+    /* App Container */
+    .app-container{display:none;height:100vh}
+    .app-container.active{display:flex}
+    
+    /* Sidebar */
+    .sidebar{width:240px;background:#fff;border-right:1px solid #000;padding:1rem;display:flex;flex-direction:column;transition:background .3s,border-color .3s}
+    body.dark .sidebar{background:#2a2a2a;border-right:1px solid #444}
+    .user-info{padding:.75rem;border:1px solid #000;border-radius:4px;margin-bottom:1rem;font-size:14px}
+    body.dark .user-info{border-color:#666}
+    .user-info .user-name{font-weight:bold;margin-bottom:.25rem}
+    .user-info .user-email{color:#666;font-size:12px}
+    .lists{flex:1;overflow-y:auto;margin-bottom:1rem}
+    .list-item{padding:.5rem;border-radius:4px;cursor:pointer;transition:background .2s}
+    .list-item.active{background:#f0f0f0}
+    body.dark .list-item.active{background:#3a3a3a}
+    
+    /* Main Content */
+    .main{flex:1;padding:1.5rem;overflow-y:auto;display:flex;flex-direction:column}
+    .header{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+    .list-title{font-size:1.5rem;font-weight:bold;outline:none;flex:1;min-width:200px}
+    .header-buttons{display:flex;gap:.5rem}
+    .theme-toggle,.logout-btn{padding:.4rem .6rem;border:1px solid #000;border-radius:4px;background:#fff;cursor:pointer;font-size:14px}
+    body.dark .theme-toggle,body.dark .logout-btn{border-color:#666;background:#2a2a2a;color:#e0e0e0}
+    
+    /* Controls & Tasks */
+    .controls{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+    .input-row{display:flex;gap:.5rem;margin-bottom:1rem}
+    .input-row input{flex:1;padding:.5rem;border:1px solid #000;border-radius:4px;background:#fff;color:#000}
+    body.dark .input-row input{border-color:#666;background:#2a2a2a;color:#e0e0e0}
+    .search-box{padding:.5rem;border:1px solid #000;border-radius:4px;margin-bottom:1rem;background:#fff;color:#000}
+    body.dark .search-box{border-color:#666;background:#2a2a2a;color:#e0e0e0}
+    .btn{padding:.5rem .75rem;border:1px solid #000;border-radius:4px;background:#fff;cursor:pointer;transition:background .2s;white-space:nowrap}
+    .btn:hover{background:#f5f5f5}
+    body.dark .btn{border-color:#666;background:#2a2a2a;color:#e0e0e0}
+    body.dark .btn:hover{background:#3a3a3a}
+    .btn.active{background:#e0e0e0}
+    body.dark .btn.active{background:#4a4a4a}
+    
+    /* Task Styles */
+    .task{display:flex;align-items:center;gap:.5rem;background:#fff;border:1px solid #000;border-radius:4px;padding:.5rem;margin-bottom:.5rem;transition:background .2s,border-color .2s}
+    body.dark .task{background:#2a2a2a;border-color:#444}
+    .task-wrapper{margin-left:0;position:relative}
+    .task.priority-high{border-left:4px solid #ef4444}
+    .task.priority-medium{border-left:4px solid #f59e0b}
+    .task.priority-low{border-left:4px solid #3b82f6}
+    .handle{cursor:grab;color:#000;flex-shrink:0}
+    body.dark .handle{color:#999}
+    .collapse-btn{background:none;border:none;cursor:pointer;font-size:12px;padding:0 4px;flex-shrink:0;color:#000}
+    body.dark .collapse-btn{color:#999}
+    .checkbox{width:18px;height:18px;border:1px solid #000;border-radius:2px;display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+    body.dark .checkbox{border-color:#666}
+    .checkbox.checked::after{content:"✔";font-size:14px}
+    .task-content{flex:1;outline:none;min-width:0}
+    .task.completed .task-content{text-decoration:line-through;color:#888}
+    .task-meta{display:flex;gap:.5rem;align-items:center;font-size:12px;color:#666;flex-shrink:0}
+    .due-date{padding:2px 6px;border-radius:3px;background:#f0f0f0;white-space:nowrap}
+    body.dark .due-date{background:#3a3a3a}
+    .due-date.overdue{background:#fee;color:#c00}
+    body.dark .due-date.overdue{background:#4a2020;color:#ff6b6b}
+    .due-date.soon{background:#fef3c7;color:#92400e}
+    body.dark .due-date.soon{background:#3a3520;color:#fbbf24}
+    .progress{font-size:11px;color:#666}
+    .tag{padding:2px 6px;border-radius:3px;background:#e0e0e0;font-size:11px;color:#333}
+    body.dark .tag{background:#3a3a3a;color:#bbb}
+    .icon-btn,.indent-btn,.trash{background:none;border:none;cursor:pointer;font-size:16px;line-height:1;padding:0 4px;flex-shrink:0;color:#666}
+    .icon-btn:hover,.indent-btn:hover{color:#000}
+    body.dark .icon-btn:hover,body.dark .indent-btn:hover{color:#e0e0e0}
+    .trash{font-size:18px}
+    .trash:hover{color:#c00}
+    .dragging{opacity:.5}
+    .collapsed{display:none}
+    
+    /* Modal */
+    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
+    .modal.active{display:flex}
+    .modal-content{background:#fff;padding:1.5rem;border-radius:8px;min-width:300px;max-width:500px}
+    body.dark .modal-content{background:#2a2a2a}
+    .modal-content h3{margin-top:0}
+    .modal-content label{display:block;margin-bottom:.5rem;font-weight:bold}
+    .modal-content input,.modal-content select,.modal-content textarea{width:100%;padding:.5rem;border:1px solid #000;border-radius:4px;margin-bottom:1rem;background:#fff;color:#000;box-sizing:border-box}
+    body.dark .modal-content input,body.dark .modal-content select,body.dark .modal-content textarea{border-color:#666;background:#1a1a1a;color:#e0e0e0}
+    .modal-content textarea{min-height:80px;resize:vertical;font-family:sans-serif}
+    .modal-buttons{display:flex;gap:.5rem;justify-content:flex-end}
+    .undo-redo{display:flex;gap:.25rem}
+    .sync-status{font-size:12px;color:#666;padding:.5rem;text-align:center}
+    .sync-status.syncing{color:#f59e0b}
+    .sync-status.synced{color:#10b981}
+    .sync-status.error{color:#ef4444}
+  </style>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginContainer" class="login-container">
+    <div class="login-box">
+      <h2>📝 Shared Checklist</h2>
+      <div id="loginError" class="error" style="display:none"></div>
+      
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" />
+        <input type="password" id="loginPassword" placeholder="Password" />
+        <button id="loginBtn" class="btn-primary">Log In</button>
+        <div class="toggle-mode" id="showSignup">Don't have an account? Sign up</div>
+      </div>
+      
+      <div id="signupForm" style="display:none">
+        <input type="text" id="signupName" placeholder="Display Name" />
+        <input type="email" id="signupEmail" placeholder="Email" />
+        <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" />
+        <button id="signupBtn" class="btn-primary">Sign Up</button>
+        <div class="toggle-mode" id="showLogin">Already have an account? Log in</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="appContainer" class="app-container">
+    <aside class="sidebar">
+      <div class="user-info">
+        <div class="user-name" id="userName">User</div>
+        <div class="user-email" id="userEmail">user@email.com</div>
+      </div>
+      <h2>Lists</h2>
+      <div id="lists" class="lists"></div>
+      <button id="newListBtn" class="btn">＋ New list</button>
+      <button id="deleteListBtn" class="btn">× Delete list</button>
+      <div class="sync-status" id="syncStatus">Synced ✓</div>
+    </aside>
+    
+    <main class="main">
+      <div class="header">
+        <div contenteditable="true" id="listTitle" class="list-title"></div>
+        <div class="header-buttons">
+          <button id="themeToggle" class="theme-toggle">🌙</button>
+          <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+      </div>
+      
+      <input type="text" id="searchBox" class="search-box" placeholder="Search tasks or filter by #tag..." />
+      
+      <div class="controls">
+        <div class="undo-redo">
+          <button id="undoBtn" class="btn" title="Undo">↶</button>
+          <button id="redoBtn" class="btn" title="Redo">↷</button>
+        </div>
+        <button id="filterAll" class="btn active">All</button>
+        <button id="filterActive" class="btn">Active</button>
+        <button id="filterCompleted" class="btn">Completed</button>
+        <button id="filterHigh" class="btn">High</button>
+        <button id="filterMedium" class="btn">Medium</button>
+        <button id="filterLow" class="btn">Low</button>
+      </div>
+      
+      <div class="input-row">
+        <input id="taskInput" type="text" placeholder="Add a task… (use #tags)" />
+        <button id="addTaskBtn" class="btn">＋</button>
+      </div>
+      
+      <div id="tasks"></div>
+    </main>
+  </div>
+
+  <!-- Task Details Modal -->
+  <div id="taskModal" class="modal">
+    <div class="modal-content">
+      <h3>Task Details</h3>
+      <label>Priority</label>
+      <select id="modalPriority">
+        <option value="">None</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <label>Due Date</label>
+      <input type="date" id="modalDueDate" />
+      <label>Notes</label>
+      <textarea id="modalNotes" placeholder="Add notes..."></textarea>
+      <div class="modal-buttons">
+        <button id="modalCancel" class="btn">Cancel</button>
+        <button id="modalSave" class="btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase Configuration (YOUR credentials)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAcfFaCA19TiOetT5SfqNdt-IMEDkuJ4PQ",
+      authDomain: "to-do-list-762a7.firebaseapp.com",
+      projectId: "to-do-list-762a7",
+      storageBucket: "to-do-list-762a7.firebasestorage.app",
+      messagingSenderId: "1053937311478",
+      appId: "1:1053937311478:web:ca12523df4ef4040d616d7",
+      measurementId: "G-267ENQ5LZ8"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Global State
+    let state = { lists: [], activeId: null, theme: 'light', filter: 'all', search: '' };
+    let history = { past: [], future: [] };
+    let currentModalTaskId = null;
+    let currentUser = null;
+    let unsubscribeFirestore = null;
+
+    // Utility Functions
+    function uid() { return Math.random().toString(36).slice(2, 9); }
+    
+    function showSyncStatus(status) {
+      const el = document.getElementById('syncStatus');
+      el.className = 'sync-status ' + status;
+      if (status === 'syncing') el.textContent = 'Syncing...';
+      else if (status === 'synced') el.textContent = 'Synced ✓';
+      else if (status === 'error') el.textContent = 'Sync Error';
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    }
+
+    // Firebase Save/Load
+    async function saveToFirebase() {
+      if (!currentUser) return;
+      try {
+        showSyncStatus('syncing');
+        await db.collection('users').doc(currentUser.uid).set({
+          lists: state.lists,
+          activeId: state.activeId,
+          theme: state.theme,
+          filter: state.filter,
+          search: state.search,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showSyncStatus('synced');
+      } catch (error) {
+        console.error('Save error:', error);
+        showSyncStatus('error');
+      }
+    }
+
+    function loadFromFirebase() {
+      if (!currentUser) return;
+      if (unsubscribeFirestore) unsubscribeFirestore();
+      
+      unsubscribeFirestore = db.collection('users').doc(currentUser.uid)
+        .onSnapshot(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            if (data.lists && Array.isArray(data.lists)) {
+              state.lists = data.lists;
+              state.activeId = data.activeId || (data.lists[0]?.id);
+              state.theme = data.theme || 'light';
+              state.filter = data.filter || 'all';
+              state.search = data.search || '';
+              refreshUI();
+            }
+          } else {
+            // First time user - create default list
+            const firstList = { id: uid(), name: "My Tasks", tasks: [] };
+            state.lists = [firstList];
+            state.activeId = firstList.id;
+            saveToFirebase();
+          }
+        }, error => {
+          console.error('Firestore error:', error);
+          showSyncStatus('error');
+        });
+    }
+
+    // History Functions
+    function saveHistory() {
+      history.past.push(JSON.parse(JSON.stringify(state)));
+      if (history.past.length > 50) history.past.shift();
+      history.future = [];
+    }
+
+    function undo() {
+      if (history.past.length === 0) return;
+      history.future.push(JSON.parse(JSON.stringify(state)));
+      state = history.past.pop();
+      saveToFirebase();
+      refreshUI();
+    }
+
+    function redo() {
+      if (history.future.length === 0) return;
+      history.past.push(JSON.parse(JSON.stringify(state)));
+      state = history.future.pop();
+      saveToFirebase();
+      refreshUI();
+    }
+
+    // Authentication
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('appContainer').classList.add('active');
+        document.getElementById('userName').textContent = user.displayName || 'User';
+        document.getElementById('userEmail').textContent = user.email;
+        
+        // Load theme from localStorage first for instant display
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        state.theme = savedTheme;
+        document.body.className = state.theme === 'dark' ? 'dark' : '';
+        document.getElementById('themeToggle').textContent = state.theme === 'dark' ? '☀️' : '🌙';
+        
+        loadFromFirebase();
+      } else {
+        currentUser = null;
+        if (unsubscribeFirestore) unsubscribeFirestore();
+        document.getElementById('loginContainer').style.display = 'flex';
+        document.getElementById('appContainer').classList.remove('active');
+      }
+    });
+
+    // Login/Signup
+    document.getElementById('loginBtn').onclick = async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) {
+        showError('Please enter email and password');
+        return;
+      }
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        showError(error.message);
+      }
+    };
+
+    document.getElementById('signupBtn').onclick = async () => {
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      
+      if (!name || !email || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters');
+        return;
+      }
+      
+      try {
+        const result = await auth.createUserWithEmailAndPassword(email, password);
+        await result.user.updateProfile({ displayName: name });
+      } catch (error) {
+        showError(error.message);
+      }
+    };
+
+    document.getElementById('showSignup').onclick = () => {
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('signupForm').style.display = 'block';
+      document.getElementById('loginError').style.display = 'none';
+    };
+
+    document.getElementById('showLogin').onclick = () => {
+      document.getElementById('signupForm').style.display = 'none';
+      document.getElementById('loginForm').style.display = 'block';
+      document.getElementById('loginError').style.display = 'none';
+    };
+
+    document.getElementById('logoutBtn').onclick = () => {
+      if (confirm('Are you sure you want to logout?')) {
+        auth.signOut();
+      }
+    };
+
+    // Enter key for login/signup
+    document.getElementById('loginPassword').onkeydown = e => {
+      if (e.key === 'Enter') document.getElementById('loginBtn').click();
+    };
+    document.getElementById('signupPassword').onkeydown = e => {
+      if (e.key === 'Enter') document.getElementById('signupBtn').click();
+    };
+
+    // UI Functions
+    function getActiveList() {
+      return state.lists.find(l => l.id === state.activeId);
+    }
+
+    function refreshUI() {
+      renderLists();
+      renderActiveList();
+      updateFilterButtons();
+    }
+
+    function updateFilterButtons() {
+      ['filterAll', 'filterActive', 'filterCompleted', 'filterHigh', 'filterMedium', 'filterLow'].forEach(id => {
+        document.getElementById(id).classList.remove('active');
+      });
+      const map = { all: 'filterAll', active: 'filterActive', completed: 'filterCompleted', high: 'filterHigh', medium: 'filterMedium', low: 'filterLow' };
+      if (map[state.filter]) document.getElementById(map[state.filter]).classList.add('active');
+    }
+
+    function renderLists() {
+      const listsEl = document.getElementById("lists");
+      listsEl.innerHTML = "";
+      state.lists.forEach(list => {
+        const el = document.createElement("div");
+        el.className = "list-item" + (list.id === state.activeId ? " active" : "");
+        el.textContent = list.name;
+        el.onclick = () => {
+          state.activeId = list.id;
+          saveToFirebase();
+          refreshUI();
+        };
+        listsEl.appendChild(el);
+      });
+    }
+
+    function extractTags(text) {
+      const matches = text.match(/#\w+/g);
+      return matches ? matches.map(t => t.toLowerCase()) : [];
+    }
+
+    function matchesFilter(task) {
+      if (state.filter === 'active' && task.completed) return false;
+      if (state.filter === 'completed' && !task.completed) return false;
+      if (state.filter === 'high' && task.priority !== 'high') return false;
+      if (state.filter === 'medium' && task.priority !== 'medium') return false;
+      if (state.filter === 'low' && task.priority !== 'low') return false;
+      if (state.search) {
+        const s = state.search.toLowerCase();
+        const textMatch = task.text.toLowerCase().includes(s);
+        const tagMatch = s.startsWith('#') && task.tags && task.tags.some(t => t.includes(s));
+        if (!textMatch && !tagMatch) return false;
+      }
+      return true;
+    }
+
+    function getChildren(task, allTasks) {
+      const idx = allTasks.indexOf(task);
+      const children = [];
+      for (let i = idx + 1; i < allTasks.length; i++) {
+        if ((allTasks[i].level || 0) <= (task.level || 0)) break;
+        children.push(allTasks[i]);
+      }
+      return children;
+    }
+
+    function hasChildren(task, allTasks) {
+      return getChildren(task, allTasks).length > 0;
+    }
+
+    function getProgress(task, allTasks) {
+      const children = getChildren(task, allTasks).filter(c => (c.level || 0) === (task.level || 0) + 1);
+      if (children.length === 0) return null;
+      const completed = children.filter(c => c.completed).length;
+      return { completed, total: children.length };
+    }
+
+    function renderActiveList() {
+      const list = getActiveList();
+      if (!list) return;
+      document.getElementById("listTitle").textContent = list.name;
+      const tasksEl = document.getElementById("tasks");
+      tasksEl.innerHTML = "";
+
+      let skipUntilLevel = null;
+      list.tasks.forEach(task => {
+        if (skipUntilLevel !== null && (task.level || 0) > skipUntilLevel) return;
+        skipUntilLevel = null;
+
+        if (!matchesFilter(task)) return;
+
+        if (task.collapsed) {
+          skipUntilLevel = task.level || 0;
+        }
+
+        tasksEl.appendChild(taskView(task, list.tasks));
+      });
+    }
+
+    function getDueDateClass(dueDate) {
+      if (!dueDate) return '';
+      const due = new Date(dueDate);
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+      if (diff < 0) return 'overdue';
+      if (diff <= 3) return 'soon';
+      return '';
+    }
+
+    function taskView(task, allTasks) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "task-wrapper";
+      wrapper.dataset.id = task.id;
+      wrapper.style.marginLeft = (task.level || 0) * 2 + "rem";
+
+      const row = document.createElement("div");
+      row.className = "task" + (task.completed ? " completed" : "") + (task.priority ? " priority-" + task.priority : "");
+      row.draggable = true;
+
+      const collapseBtn = document.createElement("button");
+      collapseBtn.className = "collapse-btn";
+      const hasKids = hasChildren(task, allTasks);
+      collapseBtn.textContent = hasKids ? (task.collapsed ? "▶" : "▼") : "";
+      collapseBtn.onclick = () => {
+        if (!hasKids) return;
+        saveHistory();
+        task.collapsed = !task.collapsed;
+        saveToFirebase();
+        refreshUI();
+      };
+
+      const handle = document.createElement("div");
+      handle.className = "handle";
+      handle.textContent = "⋮⋮";
+
+      const checkbox = document.createElement("div");
+      checkbox.className = "checkbox" + (task.completed ? " checked" : "");
+      checkbox.onclick = () => {
+        saveHistory();
+        task.completed = !task.completed;
+        const children = getChildren(task, allTasks);
+        children.forEach(c => c.completed = task.completed);
+        saveToFirebase();
+        refreshUI();
+      };
+
+      const content = document.createElement("div");
+      content.className = "task-content";
+      content.contentEditable = true;
+      content.innerText = task.text;
+      content.oninput = () => {
+        saveHistory();
+        task.text = content.innerText.trim();
+        task.tags = extractTags(task.text);
+        saveToFirebase();
+      };
+      content.onkeydown = e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          content.blur();
+        }
+      };
+
+      const meta = document.createElement("div");
+      meta.className = "task-meta";
+
+      const prog = getProgress(task, allTasks);
+      if (prog) {
+        const progress = document.createElement("span");
+        progress.className = "progress";
+        progress.textContent = `${prog.completed}/${prog.total}`;
+        meta.appendChild(progress);
+      }
+
+      if (task.dueDate) {
+        const due = document.createElement("span");
+        due.className = "due-date " + getDueDateClass(task.dueDate);
+        due.textContent = new Date(task.dueDate).toLocaleDateString();
+        meta.appendChild(due);
+      }
+
+      if (task.tags && task.tags.length > 0) {
+        task.tags.forEach(tag => {
+          const tagEl = document.createElement("span");
+          tagEl.className = "tag";
+          tagEl.textContent = tag;
+          meta.appendChild(tagEl);
+        });
+      }
+
+      const noteBtn = document.createElement("button");
+      noteBtn.className = "icon-btn";
+      noteBtn.textContent = task.notes ? "📝" : "📄";
+      noteBtn.title = "Edit details";
+      noteBtn.onclick = () => openModal(task.id);
+
+      const outdentBtn = document.createElement("button");
+      outdentBtn.className = "indent-btn";
+      outdentBtn.textContent = "←";
+      outdentBtn.onclick = () => {
+        saveHistory();
+        task.level = Math.max(0, (task.level || 0) - 1);
+        saveToFirebase();
+        refreshUI();
+      };
+
+      const indentBtn = document.createElement("button");
+      indentBtn.className = "indent-btn";
+      indentBtn.textContent = "→";
+      indentBtn.onclick = () => {
+        saveHistory();
+        const list = getActiveList();
+        const idx = list.tasks.findIndex(t => t.id === task.id);
+        if (idx > 0) {
+          task.level = (task.level || 0) + 1;
+          if (task.level > 5) task.level = 5;
+          saveToFirebase();
+          refreshUI();
+        }
+      };
+
+      const trash = document.createElement("button");
+      trash.className = "trash";
+      trash.textContent = "×";
+      trash.onclick = () => {
+        saveHistory();
+        const list = getActiveList();
+        list.tasks = list.tasks.filter(t => t.id !== task.id);
+        saveToFirebase();
+        refreshUI();
+      };
+
+      row.append(collapseBtn, handle, checkbox, content, meta, noteBtn, outdentBtn, indentBtn, trash);
+      wrapper.appendChild(row);
+
+      wrapper.addEventListener("dragstart", e => {
+        wrapper.classList.add("dragging");
+        e.dataTransfer.setData("text/plain", task.id);
+      });
+      wrapper.addEventListener("dragend", () => wrapper.classList.remove("dragging"));
+
+      return wrapper;
+    }
+
+    // Modal Functions
+    function openModal(taskId) {
+      const list = getActiveList();
+      const task = list.tasks.find(t => t.id === taskId);
+      if (!task) return;
+      currentModalTaskId = taskId;
+      document.getElementById('modalPriority').value = task.priority || '';
+      document.getElementById('modalDueDate').value = task.dueDate || '';
+      document.getElementById('modalNotes').value = task.notes || '';
+      document.getElementById('taskModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('taskModal').classList.remove('active');
+      currentModalTaskId = null;
+    }
+
+    document.getElementById('modalSave').onclick = () => {
+      if (!currentModalTaskId) return;
+      saveHistory();
+      const list = getActiveList();
+      const task = list.tasks.find(t => t.id === currentModalTaskId);
+      if (task) {
+        task.priority = document.getElementById('modalPriority').value || null;
+        task.dueDate = document.getElementById('modalDueDate').value || null;
+        task.notes = document.getElementById('modalNotes').value || null;
+        saveToFirebase();
+        refreshUI();
+      }
+      closeModal();
+    };
+
+    document.getElementById('modalCancel').onclick = closeModal;
+
+    // Drag & Drop Reordering
+    const tasksEl = document.getElementById("tasks");
+    tasksEl.addEventListener("dragover", e => {
+      e.preventDefault();
+      const dragging = document.querySelector(".dragging");
+      if (!dragging) return;
+      const after = getDragAfterElement(tasksEl, e.clientY);
+      if (after == null) tasksEl.appendChild(dragging);
+      else tasksEl.insertBefore(dragging, after);
+    });
+
+    tasksEl.addEventListener("drop", () => {
+      saveHistory();
+      const list = getActiveList();
+      const order = Array.from(tasksEl.children).map(el => el.dataset.id);
+      list.tasks.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+      saveToFirebase();
+      refreshUI();
+    });
+
+    function getDragAfterElement(container, y) {
+      const els = [...container.querySelectorAll(".task-wrapper:not(.dragging)")];
+      return els.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
+        else return closest;
+      }, { offset: -Infinity }).element;
+    }
+
+    // Event Listeners
+    document.getElementById("addTaskBtn").onclick = addTaskFromInput;
+    document.getElementById("taskInput").onkeydown = e => {
+      if (e.key === "Enter") addTaskFromInput();
+    };
+
+    document.getElementById("listTitle").oninput = () => {
+      const list = getActiveList();
+      list.name = document.getElementById("listTitle").innerText.trim() || "Untitled";
+      saveToFirebase();
+      renderLists();
+    };
+
+    document.getElementById("newListBtn").onclick = () => {
+      saveHistory();
+      const newList = { id: uid(), name: "New list", tasks: [] };
+      state.lists.push(newList);
+      state.activeId = newList.id;
+      saveToFirebase();
+      refreshUI();
+    };
+
+    document.getElementById("deleteListBtn").onclick = () => {
+      const current = getActiveList();
+      if (!current) return;
+      if (state.lists.length === 1 && current.id === state.lists[0].id) {
+        alert("You need at least one list.");
+        return;
+      }
+      const confirmed = confirm(`Delete list "${current.name}"? This cannot be undone.`);
+      if (!confirmed) return;
+      saveHistory();
+      state.lists = state.lists.filter(l => l.id !== current.id);
+      state.activeId = state.lists[0].id;
+      saveToFirebase();
+      refreshUI();
+    };
+
+    document.getElementById('themeToggle').onclick = () => {
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      document.body.className = state.theme === 'dark' ? 'dark' : '';
+      document.getElementById('themeToggle').textContent = state.theme === 'dark' ? '☀️' : '🌙';
+      localStorage.setItem('theme', state.theme);
+      saveToFirebase();
+    };
+
+    document.getElementById('undoBtn').onclick = undo;
+    document.getElementById('redoBtn').onclick = redo;
+
+    document.getElementById('filterAll').onclick = () => {
+      state.filter = 'all';
+      saveToFirebase();
+      refreshUI();
+    };
+    document.getElementById('filterActive').onclick = () => {
+      state.filter = 'active';
+      saveToFirebase();
+      refreshUI();
+    };
+    document.getElementById('filterCompleted').onclick = () => {
+      state.filter = 'completed';
+      saveToFirebase();
+      refreshUI();
+    };
+    document.getElementById('filterHigh').onclick = () => {
+      state.filter = 'high';
+      saveToFirebase();
+      refreshUI();
+    };
+    document.getElementById('filterMedium').onclick = () => {
+      state.filter = 'medium';
+      saveToFirebase();
+      refreshUI();
+    };
+    document.getElementById('filterLow').onclick = () => {
+      state.filter = 'low';
+      saveToFirebase();
+      refreshUI();
+    };
+
+    document.getElementById('searchBox').oninput = (e) => {
+      state.search = e.target.value;
+      saveToFirebase();
+      refreshUI();
+    };
+
+    function addTaskFromInput() {
+      const input = document.getElementById("taskInput");
+      const text = input.value.trim();
+      if (!text) return;
+      saveHistory();
+      const list = getActiveList();
+      const tags = extractTags(text);
+      list.tasks.push({ id: uid(), text, completed: false, level: 0, tags });
+      input.value = "";
+      saveToFirebase();
+      refreshUI();
+    }
+  </script>
+</body>
+</html>
